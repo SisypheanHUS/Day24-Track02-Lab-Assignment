@@ -5,7 +5,7 @@ import pandas as pd
 from presidio_anonymizer import AnonymizerEngine
 from presidio_anonymizer.entities import OperatorConfig
 from faker import Faker
-from .detector import build_vietnamese_analyzer, detect_pii
+from .detector import build_vietnamese_analyzer, detect_pii, get_analysis_language
 
 fake = Faker("vi_VN")
 
@@ -15,8 +15,16 @@ class MedVietAnonymizer:
     def __init__(self):
         self.analyzer = build_vietnamese_analyzer()
         self.anonymizer = AnonymizerEngine()
+        # Language is determined at build time based on installed spaCy model
+        self.language = get_analysis_language()
 
     # --- helpers ---
+
+    def _anonymize_address(self, text: str) -> str:
+        """Anonymize địa chỉ qua anonymize_text(); dùng fake address nếu không detect được."""
+        anonymized = self.anonymize_text(text)
+        # Nếu không có PII nào được detect, địa chỉ gốc được trả về nguyên — replace trực tiếp
+        return anonymized if anonymized != text else fake.address()
 
     def _fake_cccd(self) -> str:
         return "".join([str(random.randint(0, 9)) for _ in range(12)])
@@ -94,7 +102,11 @@ class MedVietAnonymizer:
         df_anon["email"] = df["email"].apply(
             lambda x: self.anonymize_text(str(x))
         )
-        df_anon["dia_chi"] = [fake.address() for _ in range(len(df))]
+        # anonymize_text() cho địa chỉ; fallback sang fake address nếu Presidio
+        # không detect được PII trong chuỗi địa chỉ thuần (không có email/phone)
+        df_anon["dia_chi"] = df["dia_chi"].apply(
+            lambda x: self._anonymize_address(str(x))
+        )
         df_anon["cccd"] = [self._fake_cccd() for _ in range(len(df))]
         df_anon["so_dien_thoai"] = [self._fake_phone() for _ in range(len(df))]
         df_anon["bac_si_phu_trach"] = [fake.name() for _ in range(len(df))]

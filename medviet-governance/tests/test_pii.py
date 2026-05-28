@@ -19,27 +19,21 @@ class TestPIIDetection:
     def test_cccd_detected(self, anonymizer):
         text = "Bệnh nhân Nguyen Van A, CCCD: 012345678901"
         results = anonymizer.analyzer.analyze(
-            text=text,
-            language=getattr(anonymizer.analyzer, "_vn_lang", "vi"),
-            entities=["VN_CCCD"]
+            text=text, language=anonymizer.language, entities=["VN_CCCD"]
         )
         assert len(results) >= 1
 
     def test_phone_detected(self, anonymizer):
         text = "Liên hệ: 0912345678"
         results = anonymizer.analyzer.analyze(
-            text=text,
-            language=getattr(anonymizer.analyzer, "_vn_lang", "vi"),
-            entities=["VN_PHONE"]
+            text=text, language=anonymizer.language, entities=["VN_PHONE"]
         )
         assert len(results) >= 1
 
     def test_email_detected(self, anonymizer):
         text = "Email: nguyenvana@gmail.com"
         results = anonymizer.analyzer.analyze(
-            text=text,
-            language=getattr(anonymizer.analyzer, "_vn_lang", "vi"),
-            entities=["EMAIL_ADDRESS"]
+            text=text, language=anonymizer.language, entities=["EMAIL_ADDRESS"]
         )
         assert len(results) >= 1
 
