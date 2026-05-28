@@ -11,33 +11,35 @@ allow if {
     input.user.role == "admin"
 }
 
-# ML Engineer được đọc training data và model artifacts
+# ML Engineer: đọc/ghi training data và model artifacts
 allow if {
     input.user.role == "ml_engineer"
     input.resource in {"training_data", "model_artifacts"}
     input.action in {"read", "write"}
 }
 
-# TODO: ML Engineer KHÔNG được delete production data
+# ML Engineer KHÔNG được delete production data
 deny if {
     input.user.role == "ml_engineer"
     input.resource == "production_data"
     input.action == "delete"
 }
 
-# TODO: Data Analyst chỉ được đọc aggregated metrics và viết reports
+# Data Analyst: chỉ đọc aggregated metrics và viết reports
 allow if {
     input.user.role == "data_analyst"
-    # Hoàn thành rule này
+    input.resource in {"aggregated_metrics", "reports"}
+    input.action in {"read", "write"}
 }
 
-# TODO: Intern chỉ được access sandbox
+# Intern: chỉ được access sandbox
 allow if {
     input.user.role == "intern"
-    # Hoàn thành rule này
+    input.resource == "sandbox_data"
+    input.action in {"read", "write"}
 }
 
-# Rule: không ai được export restricted data ra ngoài VN servers
+# Không ai được export restricted data ra ngoài VN servers
 deny if {
     input.data_classification == "restricted"
     input.destination_country != "VN"

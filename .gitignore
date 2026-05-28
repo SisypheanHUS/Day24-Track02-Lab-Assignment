@@ -1,0 +1,23 @@
+# Secrets / keys
+.vault_key
+*.key
+*.pem
+
+# Raw PII data — không commit lên repo
+medviet-governance/data/raw/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.env
+venv/
+.venv/
+
+# Great Expectations
+gx/
+.ge_store_backend_id
+
+# OS
+.DS_Store
+Thumbs.db
